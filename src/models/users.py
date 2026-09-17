@@ -16,6 +16,10 @@ class BaseServiceModel:
 Base: DeclarativeMeta = declarative_base(metadata=metadata, cls=BaseServiceModel)
 
 
+"""
+    ВЫНЕСТИ UserModel В ОТДЕЛЬНЫЙ ФАЙЛ
+"""
+
 class UserModel(Base):
     __tablename__ = 'users'
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
