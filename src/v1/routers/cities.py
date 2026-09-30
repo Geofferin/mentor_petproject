@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, Body, status
+from fastapi import APIRouter, Depends, status
 from uuid import UUID
 
 from schemas.cities import CityUpdate
 from src.schemas.cities import CityCreate
-from src.services.cities import CityService, get_city_service
+from src.services.cities import CityService
+from src.dependencies.cities import get_city_service
+
 
 router = APIRouter(prefix="/cities", tags=["Города"])
-
 
 @router.get('/{city_id}', status_code=status.HTTP_200_OK)
 async def get_city(city_id: UUID, service: CityService = Depends(get_city_service)):

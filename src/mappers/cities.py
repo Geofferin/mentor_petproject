@@ -5,11 +5,8 @@ class CityMapper:
     def to_read_schema(self, orm_obj: CityModel) -> CityRead:
         return CityRead.model_validate(orm_obj)
 
-    def to_create_kwargs(self, dto: CityCreate) -> dict:
-        return dto.model_dump()
+    def to_create(self, dto: CityCreate) -> CityModel:
+        return CityModel(**dto.model_dump())
 
-    def to_update_kwargs(self, dto: CityUpdate) -> dict:
-        return dto.model_dump()
-
-def get_city_mapper() -> CityMapper:
-    return CityMapper()
+    def to_update(self, dto: CityUpdate) -> CityModel:
+        return CityModel(**dto.model_dump())

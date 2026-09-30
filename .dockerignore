@@ -1,6 +1,7 @@
 .gitignore
 README.md
 Dockerfile
+docker-compose.yaml
 .git
 .venv
 __pycache__/

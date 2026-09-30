@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 
 class CityCreate(BaseModel):
@@ -28,5 +28,5 @@ class CityRead(BaseModel):
     country: str
     population: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
     is_deleted: bool
