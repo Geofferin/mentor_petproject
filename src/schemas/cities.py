@@ -27,6 +27,3 @@ class CityRead(BaseModel):
     name: str
     country: str
     population: int
-    created_at: datetime
-    updated_at: Optional[datetime]
-    is_deleted: bool

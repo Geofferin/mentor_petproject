@@ -4,6 +4,7 @@ from schemas.cities import CityUpdate
 from src.mappers.cities import CityMapper
 from src.repositories.cities import CityRepository
 from src.schemas.cities import CityCreate, CityRead
+from src import exceptions
 
 
 class CityService:
@@ -14,6 +15,8 @@ class CityService:
 
     async def get_by_id(self, city_id: UUID) -> CityRead | None:
         city = await self.read_repository.get_by_id(city_id)
+        if not city:
+            raise exceptions.NotFoundError
         return self.mapper.to_read_schema(city)
 
     async def create(self, city_data: CityCreate) -> CityRead:
@@ -21,7 +24,11 @@ class CityService:
         return self.mapper.to_read_schema(new_city)
 
     async def update(self, city_id: UUID, city_data: CityUpdate) -> None:
+        if not await self.read_repository.get_by_id(city_id):
+            raise exceptions.NotFoundError
         await self.cud_repository.update(city_id, self.mapper.to_update(city_data))
 
     async def delete(self, city_id: UUID) -> None:
+        if not await self.read_repository.get_by_id(city_id):
+            raise exceptions.NotFoundError
         await self.cud_repository.delete(city_id)
