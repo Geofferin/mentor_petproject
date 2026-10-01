@@ -1,19 +1,18 @@
 import datetime
-from sqlalchemy import String, text
+from sqlalchemy import String, text, Integer
 from sqlalchemy.orm import Mapped, mapped_column
-from typing import Annotated
+from uuid import UUID, uuid4
+
 from src.models.base import Base
 
-# для примера используется часовой пояс UTC
-created_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"))]
-updated_at = Annotated[datetime.datetime, mapped_column(server_default=text("TIMEZONE('utc', now())"),
-                                                        onupdate=datetime.datetime.utcnow())]
 
 class CityModel(Base):
     __tablename__ = 'cities'
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     name: Mapped[str] = mapped_column(String(256))
     country: Mapped[str] = mapped_column(String(256))
-    created_at: Mapped[created_at]
-    updated_at: Mapped[updated_at]
+    population: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    updated_at: Mapped[datetime.datetime] = mapped_column(onupdate=text("TIMEZONE('utc', now())"),
+                                                          nullable=True)
     is_deleted: Mapped[bool] = mapped_column(server_default=text("false"))

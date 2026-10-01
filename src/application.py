@@ -1,10 +1,18 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
-from src.router.healthcheck import router as healthcheck_router
-from src.router.cities import router as cities_router
+from src.v1 import router as v1_router
+from src import exceptions
 
+
+def register_exception_handlers(app: FastAPI) -> None:
+    @app.exception_handler(exceptions.NotFoundError)
+    async def not_found(request: Request, exc: exceptions.NotFoundError):
+        return JSONResponse(status_code=404, content={'detail': 'Not found'})
+
+def include_routers(app: FastAPI):
+    app.include_router(v1_router)
 
 def get_app() -> FastAPI:
     app = FastAPI(
@@ -21,7 +29,7 @@ def get_app() -> FastAPI:
         allow_headers=['*'],
     )
 
-    app.include_router(healthcheck_router)
-    app.include_router(cities_router)
+    include_routers(app)
+    register_exception_handlers(app)
 
     return app

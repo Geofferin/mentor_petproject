@@ -5,8 +5,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from src.config import settings
-from src.models.base import Base, UserModel
+from src.models.base import Base
 from src.models.cities import CityModel
+from src.models.users import UserModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -65,18 +66,6 @@ async def run_async_migrations() -> None:
 
 def run_migrations_online() -> None:
     asyncio.run(run_async_migrations())
-
-    # connectable = engine_from_config(
-    #     config.get_section(config.config_ini_section, {}),
-    #     prefix="sqlalchemy.",
-    #     poolclass=pool.NullPool,
-    # )
-    #
-    # with connectable.connect() as connection:
-    #     context.configure(connection=connection, target_metadata=target_metadata)
-    #
-    #     with context.begin_transaction():
-    #         context.run_migrations()
 
 
 if context.is_offline_mode():
