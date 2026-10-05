@@ -3,13 +3,13 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from src.v1 import router as v1_router
-from src import exceptions
+from src.exceptions import NotFoundError
 
 
 def register_exception_handlers(app: FastAPI) -> None:
-    @app.exception_handler(exceptions.NotFoundError)
-    async def not_found(request: Request, exc: exceptions.NotFoundError):
-        return JSONResponse(status_code=404, content={'detail': 'Not found'})
+    @app.exception_handler(NotFoundError)
+    async def not_found(request: Request, exc: NotFoundError):
+        return JSONResponse(status_code=404, content={'detail': str(exc)})
 
 def include_routers(app: FastAPI):
     app.include_router(v1_router)
