@@ -11,7 +11,7 @@ router = APIRouter(prefix="/cities", tags=["Города"])
 
 @router.get('/{city_id}', status_code=status.HTTP_200_OK)
 async def get_city(city_id: UUID, service: CityService = Depends(get_city_service)):
-    city = await service.get_by_id(city_id)
+    city = await service.get(city_id)
     return city
 
 @router.post('', status_code=status.HTTP_201_CREATED)
