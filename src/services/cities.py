@@ -61,16 +61,17 @@ class CityService:
         await self.get_existing(city_id)
         await self.city_cud_repository.update(city_id, self.mapper.to_update(city_data))
 
-        to_create, to_update, to_delete = await self.classify_stations(city_id, city_data.stations)
+        if city_data.stations is not None:
+            to_create, to_update, to_delete = await self.classify_stations(city_id, city_data.stations)
 
-        stations_to_create = [self.mapper.to_update_station(station, city_id) for station in to_create]
-        await self.station_cud_repository.create_many(stations_to_create)
+            stations_to_create = [self.mapper.to_update_station(station, city_id) for station in to_create]
+            await self.station_cud_repository.create_many(stations_to_create)
 
-        for station in to_update:
-            station_to_update = self.mapper.to_update_station(station, city_id)
-            await self.station_cud_repository.update(station.id, station_to_update)
+            for station in to_update:
+                station_to_update = self.mapper.to_update_station(station, city_id)
+                await self.station_cud_repository.update(station.id, station_to_update)
 
-        await self.station_cud_repository.delete_many(to_delete)
+            await self.station_cud_repository.delete_many(to_delete)
 
     async def delete(self, city_id: UUID) -> None:
         await self.get_existing(city_id)

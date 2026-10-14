@@ -20,7 +20,7 @@ class CityUpdate(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=256)]
     country: Annotated[str, Field(min_length=1, max_length=256)]
     population: Annotated[int, Field(ge=0)]
-    stations: list[StationUpdate] = []
+    stations: list[StationUpdate] | None = None
 
 
 class CityRead(BaseModel):

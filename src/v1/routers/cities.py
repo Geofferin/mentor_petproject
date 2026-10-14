@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from uuid import UUID
 
-from src.schemas.cities import CityCreate, CityUpdate, CityRead
+from src.schemas.cities import CityCreate, CityUpdate
 from src.services.cities import CityService
 from src.dependencies.cities import get_city_service
 
@@ -14,7 +14,10 @@ async def get_city(city_id: UUID, service: CityService = Depends(get_city_servic
     return city
 
 @router.get('', status_code=status.HTTP_200_OK)
-async def get_cities(offset: int, limit: int, service: CityService = Depends(get_city_service)):
+async def get_cities(
+        offset: int = Query(default=0, ge=0, description='Пропуск первых n записей'),
+        limit: int = Query(default=10, gt=0, le=100, description='Кол-во записей на странице'),
+        service: CityService = Depends(get_city_service)):
     cities = await service.get_many(offset, limit)
     return cities
 
