@@ -1,7 +1,8 @@
 from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
-from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated
+
+from src.schemas.stations import StationRead, StationCreate, StationUpdate
 
 
 class CityCreate(BaseModel):
@@ -10,6 +11,7 @@ class CityCreate(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=256)]
     country: Annotated[str, Field(min_length=1, max_length=256)]
     population: Annotated[int, Field(ge=0)]
+    stations: list[StationCreate] = []
 
 
 class CityUpdate(BaseModel):
@@ -18,6 +20,7 @@ class CityUpdate(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=256)]
     country: Annotated[str, Field(min_length=1, max_length=256)]
     population: Annotated[int, Field(ge=0)]
+    stations: list[StationUpdate] | None = None
 
 
 class CityRead(BaseModel):
@@ -27,3 +30,4 @@ class CityRead(BaseModel):
     name: str
     country: str
     population: int
+    stations: list[StationRead] = []
