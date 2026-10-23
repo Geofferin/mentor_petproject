@@ -39,14 +39,8 @@ class BaseRepository(Generic[ModelType]):
         await self.db.flush()
         return objs
 
-    async def update(self, obj_id: UUID, obj: ModelType) -> None:
-        existing = await self.db.get(self.model, obj_id)
-
-        for column in self.model.__table__.columns:
-            if column.name in ('id', 'city_id', 'created_at', 'updated_at', 'is_deleted'):
-                continue
-            setattr(existing, column.name, getattr(obj, column.name))
-
+    async def update(self, objs: list[ModelType]) -> None:
+        self.db.add_all(objs)
         await self.db.flush()
 
     async def delete(self, obj_id: UUID) -> None:

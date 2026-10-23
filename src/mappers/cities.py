@@ -1,25 +1,33 @@
-from uuid import UUID
+from typing import Generic, TypeVar
+from pydantic import BaseModel
 
+from src.models.base import Base
 from src.models.cities import CityModel
-from src.models.stations import StationModel
-from src.schemas.cities import CityCreate, CityRead, CityUpdate
-from src.schemas.stations import StationCreate, StationRead, StationUpdate
+from src.schemas.cities import CityRead
 
-class CityMapper:
-    def to_read_schema(self, orm_obj: CityModel) -> CityRead:
-        return CityRead.model_validate(orm_obj)
 
-    def to_create(self, dto: CityCreate) -> CityModel:
-        return CityModel(**dto.model_dump(exclude={'stations'}))
+ModelType = TypeVar('ModelType', bound=Base)
+ReadSchemaType = TypeVar('ReadSchemaType', bound=BaseModel)
 
-    def to_update(self, dto: CityUpdate) -> CityModel:
-        return CityModel(**dto.model_dump(exclude={'stations'}))
 
-    def to_read_station(self, orm_obj: StationModel) -> StationRead:
-        return StationRead.model_validate(orm_obj)
+class CityMapper(Generic[ModelType, ReadSchemaType]):
+    model: type[ModelType] = CityModel
+    read_schema: type[ReadSchemaType] = CityRead
 
-    def to_create_station(self, dto: StationCreate, city_id: UUID) -> StationModel:
-        return StationModel(**dto.model_dump(), city_id=city_id)
+    def __init__(self, model: type[ModelType] | None = None, read_schema: type[ReadSchemaType] | None = None):
+        if model is not None:
+            self.model = model
+        if read_schema is not None:
+            self.read_schema = read_schema
 
-    def to_update_station(self, dto: StationUpdate, city_id: UUID) -> StationModel:
-        return StationModel(**dto.model_dump(exclude={'id'}), city_id=city_id)
+    def to_read_schema(self, orm_obj: ModelType) -> ReadSchemaType:
+        return self.read_schema.model_validate(orm_obj)
+
+    def to_create(self, dto, **extra_fields) -> ModelType:
+        return self.model(**dto.model_dump(exclude={'id', 'stations'}), **extra_fields)
+
+    def to_update(self, existing_obj, new_dto) -> ModelType:
+        data = new_dto.model_dump(exclude={'id', 'stations'})
+        for key, value in data.items():
+            setattr(existing_obj, key, value)
+        return existing_obj
