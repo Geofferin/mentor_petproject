@@ -27,7 +27,7 @@ class CityMapper(Generic[ModelType, ReadSchemaType]):
         return self.model(**dto.model_dump(exclude={'id', 'stations'}), **extra_fields)
 
     def to_update(self, existing_obj, new_dto) -> ModelType:
-        data = new_dto.model_dump(exclude={'id', 'stations'})
+        data = new_dto.model_dump(exclude={'id', 'stations'}, exclude_unset=True, exclude_none=True)
         for key, value in data.items():
             setattr(existing_obj, key, value)
         return existing_obj

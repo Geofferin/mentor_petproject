@@ -3,11 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_read_session, get_cud_session
 from src.repositories.cities import CityRepository
-from src.repositories.base import BaseRepository
 from src.mappers.cities import CityMapper
-from src.models.stations import StationModel
 from src.services.cities import CityService
-from src.dependencies.stations import get_station_repository_read, get_station_repository_cud, get_station_mapper
+from src.dependencies.stations import get_station_mapper
 
 
 def get_city_repository_read(db: AsyncSession = Depends(get_read_session)) -> CityRepository:
@@ -20,17 +18,15 @@ def get_city_mapper() -> CityMapper:
     return CityMapper()
 
 def get_service_read(
-        city_repository: CityRepository = Depends(get_city_repository_read),
-        station_repository: BaseRepository[StationModel] = Depends(get_station_repository_read),
+        repository: CityRepository = Depends(get_city_repository_read),
         city_mapper: CityMapper = Depends(get_city_mapper),
         station_mapper: CityMapper = Depends(get_station_mapper),
 ) -> CityService:
-    return CityService(city_repository, station_repository, city_mapper, station_mapper)
+    return CityService(repository, city_mapper, station_mapper)
 
 def get_service_cud(
-        city_repository: CityRepository = Depends(get_city_repository_cud),
-        station_repository: BaseRepository[StationModel] = Depends(get_station_repository_cud),
+        repository: CityRepository = Depends(get_city_repository_cud),
         city_mapper: CityMapper = Depends(get_city_mapper),
         station_mapper: CityMapper = Depends(get_station_mapper),
 ) -> CityService:
-    return CityService(city_repository, station_repository, city_mapper, station_mapper)
+    return CityService(repository, city_mapper, station_mapper)

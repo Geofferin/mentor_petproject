@@ -4,7 +4,7 @@ from typing import Annotated
 
 
 class StationCreate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
 
     name: Annotated[str, Field(min_length=1, max_length=256)]
     address: Annotated[str, Field(min_length=1, max_length=256)]
@@ -12,7 +12,7 @@ class StationCreate(BaseModel):
 
 
 class StationUpdate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
 
     id: UUID | None = None
     name: Annotated[str, Field(min_length=1, max_length=256)]

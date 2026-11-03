@@ -6,16 +6,16 @@ from src.schemas.stations import StationRead, StationCreate, StationUpdate
 
 
 class CityCreate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
 
     name: Annotated[str, Field(min_length=1, max_length=256)]
     country: Annotated[str, Field(min_length=1, max_length=256)]
     population: Annotated[int, Field(ge=0)]
-    stations: list[StationCreate] = []
+    stations: Annotated[list[StationCreate], Field(min_length=1, max_length=10)]
 
 
 class CityUpdate(BaseModel):
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
 
     name: Annotated[str, Field(min_length=1, max_length=256)]
     country: Annotated[str, Field(min_length=1, max_length=256)]
