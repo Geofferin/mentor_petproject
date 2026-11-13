@@ -14,10 +14,10 @@ class StationCreate(BaseModel):
 class StationUpdate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra='forbid')
 
-    id: UUID | None = None
-    name: Annotated[str, Field(min_length=1, max_length=256)]
-    address: Annotated[str, Field(min_length=1, max_length=256)]
-    type: Annotated[str, Field(min_length=1, max_length=256)]
+    id: UUID
+    name: Annotated[str, Field(min_length=1, max_length=256)] | None = None
+    address: Annotated[str, Field(min_length=1, max_length=256)] | None = None
+    type: Annotated[str, Field(min_length=1, max_length=256)] | None = None
 
 
 class StationRead(BaseModel):

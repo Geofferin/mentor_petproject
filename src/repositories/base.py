@@ -18,7 +18,12 @@ class BaseRepository(Generic[ModelType]):
         return await self.db.get(self.model, obj_id)
 
     async def get_all(self, offset: int, limit: int) -> Sequence[ModelType]:
-        result = await self.db.execute(select(self.model).offset(offset).limit(limit).order_by(self.model.created_at))
+        result = await self.db.execute(
+            select(self.model)
+            .where(self.model.is_deleted.is_(False))
+            .offset(offset)
+            .limit(limit)
+            .order_by(self.model.created_at))
         return result.scalars().all()
 
     async def create(self, objs: list[ModelType]) -> list[ModelType]:
