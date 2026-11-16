@@ -1,20 +1,20 @@
 from uuid import UUID
 
-from src.mappers.cities import Mapper
+from src.mappers.cities import CityMapper
 from src.repositories.cities import CityRepository
 from src.schemas.cities import CityCreate, CityRead, CityUpdate
 from src.exceptions import NotFoundError
 
 
 class CityService:
-    def __init__(self, repository: CityRepository, mapper: Mapper):
+    def __init__(self, repository: CityRepository, mapper: CityMapper):
         self.repository = repository
         self.mapper = mapper
 
 
     async def get_existing(self, city_id: UUID):
         city = await self.repository.get_by_id(city_id)
-        if not city or city.is_deleted:
+        if not city:
             raise NotFoundError(f'Did not find City with this id: {city_id}')
         return city
 
@@ -26,8 +26,7 @@ class CityService:
 
     async def get_many(self, offset: int, limit: int) -> list[CityRead]:
         cities = await self.repository.get_all(offset, limit)
-        result = [self.mapper.to_read_schema(city) for city in cities]
-        return result
+        return self.mapper.to_read_schema(cities)
 
 
     async def create(self, city_data: CityCreate) -> CityRead:

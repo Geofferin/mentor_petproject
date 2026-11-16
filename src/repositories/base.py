@@ -15,7 +15,9 @@ class BaseRepository(Generic[ModelType]):
         self.db = db
 
     async def get_by_id(self, obj_id: UUID) -> ModelType | None:
-        return await self.db.get(self.model, obj_id)
+        result = await self.db.execute(select(self.model)
+            .where(self.model.id == obj_id, self.model.is_deleted.is_(False)))
+        return result.scalars().first()
 
     async def get_all(self, offset: int, limit: int) -> Sequence[ModelType]:
         result = await self.db.execute(
