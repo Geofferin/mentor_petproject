@@ -1,1 +1,1 @@
-from v1.routers.healthcheck import router
+from src.v1.routers.healthcheck import router

@@ -1,6 +1,6 @@
-from sqlalchemy import update, delete
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Sequence
 from uuid import UUID
 
 from src.models.base import Base
@@ -15,21 +15,28 @@ class BaseRepository(Generic[ModelType]):
         self.db = db
 
     async def get_by_id(self, obj_id: UUID) -> ModelType | None:
-        return await self.db.get(self.model, obj_id)
+        result = await self.db.execute(select(self.model)
+            .where(self.model.id == obj_id, self.model.is_deleted.is_(False)))
+        return result.scalars().first()
 
-    async def create(self, obj: ModelType) -> ModelType:
-        self.db.add(obj)
+    async def get_all(self, offset: int, limit: int) -> Sequence[ModelType]:
+        result = await self.db.execute(
+            select(self.model)
+            .where(self.model.is_deleted.is_(False))
+            .offset(offset)
+            .limit(limit)
+            .order_by(self.model.created_at))
+        return result.scalars().all()
+
+    async def create(self, objs: list[ModelType]) -> list[ModelType]:
+        self.db.add_all(objs)
         await self.db.flush()
-        await self.db.refresh(obj)
-        return obj
+        return objs
 
-    async def update(self, obj_id: UUID, obj: ModelType) -> None:
-        await self.db.execute(
-            update(self.model)
-            .where(self.model.id == obj_id)
-            .values(name=obj.name, country=obj.country, population=obj.population))
+    async def update(self, objs: list[ModelType]) -> None:
+        self.db.add_all(objs)
         await self.db.flush()
 
-    async def delete(self, obj_id: UUID) -> None:
-        await self.db.execute(delete(self.model).where(self.model.id == obj_id))
+    async def delete(self, obj_ids: list[UUID]) -> None:
+        await self.db.execute(update(self.model).where(self.model.id.in_(obj_ids)).values(is_deleted=True))
         await self.db.flush()

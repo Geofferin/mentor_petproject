@@ -1,38 +1,46 @@
 from uuid import UUID
 
-from src.models.cities import CityModel
-from src.schemas.cities import CityUpdate
 from src.mappers.cities import CityMapper
 from src.repositories.cities import CityRepository
-from src.schemas.cities import CityCreate, CityRead
+from src.schemas.cities import CityCreate, CityRead, CityUpdate
 from src.exceptions import NotFoundError
 
 
 class CityService:
-    def __init__(self, read_repository: CityRepository, cud_repository: CityRepository, mapper: CityMapper):
-        self.read_repository = read_repository
-        self.cud_repository = cud_repository
+    def __init__(self, repository: CityRepository, mapper: CityMapper):
+        self.repository = repository
         self.mapper = mapper
 
-    async def get_existing(self, city_id: UUID) -> CityModel:
-        city = await self.read_repository.get_by_id(city_id)
+
+    async def get_existing(self, city_id: UUID):
+        city = await self.repository.get_by_id(city_id)
         if not city:
             raise NotFoundError(f'Did not find City with this id: {city_id}')
         return city
+
 
     async def get(self, city_id: UUID) -> CityRead:
         city = await self.get_existing(city_id)
         return self.mapper.to_read_schema(city)
 
+
+    async def get_many(self, offset: int, limit: int) -> list[CityRead]:
+        cities = await self.repository.get_all(offset, limit)
+        return self.mapper.to_read_schema(cities)
+
+
     async def create(self, city_data: CityCreate) -> CityRead:
         city_model = self.mapper.to_create(city_data)
-        new_city = await self.cud_repository.create(city_model)
+        new_city = (await self.repository.create([city_model]))[0]
         return self.mapper.to_read_schema(new_city)
 
+
     async def update(self, city_id: UUID, city_data: CityUpdate) -> None:
-        await self.get_existing(city_id)
-        await self.cud_repository.update(city_id, self.mapper.to_update(city_data))
+        existing_city = await self.get_existing(city_id)
+        updated_city = self.mapper.to_update(existing_city, city_data)
+        await self.repository.update([updated_city])
+
 
     async def delete(self, city_id: UUID) -> None:
         await self.get_existing(city_id)
-        await self.cud_repository.delete(city_id)
+        await self.repository.delete([city_id])
